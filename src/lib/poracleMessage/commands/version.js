@@ -2,6 +2,24 @@ const { version } = require('../../../../package.json')
 
 exports.run = async (client, msg, args, options) => {
 	try {
+		const util = client.createUtil(msg, options)
+
+		const {
+			canContinue, target, language,
+		} = await util.buildTarget(args)
+
+		if (!canContinue) return
+
+		const commandName = __filename.slice(__dirname.length + 1, -3)
+		client.log.info(`${target.name}/${target.type}-${target.id}: ${commandName} ${args}`)
+
+		const translator = client.translatorFactory.Translator(language)
+
+		if (!await util.commandAllowed(commandName)) {
+			await msg.react('🚫')
+			return msg.reply(translator.translate('You do not have permission to execute this command'))
+		}
+
 		if (msg.isDM) {
 			msg.reply(`PoracleJS version ${version}`)
 		}
@@ -9,17 +27,6 @@ exports.run = async (client, msg, args, options) => {
 		if (!msg.isFromAdmin) {
 			return
 		}
-
-		const util = client.createUtil(msg, options)
-
-		const {
-			canContinue, target,
-		} = await util.buildTarget(args)
-
-		if (!canContinue) return
-
-		const commandName = __filename.slice(__dirname.length + 1, -3)
-		client.log.info(`${target.name}/${target.type}-${target.id}: ${commandName} ${args}`)
 
 		Promise.all([client.query.execPromise('git status'), client.query.execPromise('git --no-pager log -3')]).then(async (output) => {
 			let changes = output[0]

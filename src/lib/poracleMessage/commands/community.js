@@ -34,6 +34,11 @@ exports.run = async (client, msg, args, options) => {
 
 		const command = args.shift()
 
+		if (!await util.commandAllowed(command)) {
+			await msg.react('🚫')
+			return msg.reply(translator.translate('You do not have permission to execute this command'))
+		}
+
 		const communityKeys = Object.keys(client.config.areaSecurity.communities)
 
 		if (command === 'list') {
