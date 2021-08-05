@@ -61,7 +61,7 @@ const TelegramWorker = require('./lib/telegram/Telegram')
 const logs = require('./lib/logger')
 
 const { log } = logs
-const re = require('./util/regex')(translatorFactory)
+const re = require('./util/regex')(translatorFactory, config.pvp.leagues)
 
 const Query = require('./controllers/query')
 
@@ -220,12 +220,7 @@ async function initialiseOhbem() {
 		ohbem = new Ohbem({
 			// all of the following options are optional and these (except for pokemonData) are the default values
 			// read the documentation for more information
-			leagues: {
-				little: 500,
-				great: 1500,
-				ultra: 2500,
-				//	master: null,
-			},
+			leagues: config.pvp.leagues,
 			levelCaps: config.pvp.levelCaps,
 			// The following field is required to use queryPvPRank
 			// You can skip populating it if you only want to use other helper methods

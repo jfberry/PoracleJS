@@ -27,22 +27,22 @@ module.exports = (translatorFactory, leagues) => {
 		userRe: createCommandRegex(translatorFactory, 'user', '-?\\d{1,20}'),
 		formRe: createCommandRegex(translatorFactory, 'form', '.+'),
 		genRe: createCommandRegex(translatorFactory, 'gen', '[1-8]+'),
-		max_levelRe: createCommandRegex(translatorFactory, 'maxlevel', '\\d{1,2}'),
+		maxlevelRe: createCommandRegex(translatorFactory, 'maxlevel', '\\d{1,2}'),
 		templateRe: createCommandRegex(translatorFactory, 'template', '.+'),
-		max_cpRe: createCommandRegex(translatorFactory, 'maxcp', '\\d{1,5}'),
-		max_ivRe: createCommandRegex(translatorFactory, 'maxiv', '\\d{1,3}'),
-		max_weightRe: createCommandRegex(translatorFactory, 'maxweight', '\\d{1,6}'),
-		max_rarityRe: createCommandRegex(translatorFactory, 'maxrarity', '.+'),
-		max_atkRe: createCommandRegex(translatorFactory, 'maxatk', '\\d{1,2}'),
-		max_defRe: createCommandRegex(translatorFactory, 'maxdef', '\\d{1,2}'),
-		max_staRe: createCommandRegex(translatorFactory, 'maxsta', '\\d{1,2}'),
+		maxcpRe: createCommandRegex(translatorFactory, 'maxcp', '\\d{1,5}'),
+		maxivRe: createCommandRegex(translatorFactory, 'maxiv', '\\d{1,3}'),
+		maxweightRe: createCommandRegex(translatorFactory, 'maxweight', '\\d{1,6}'),
+		maxRarityRe: createCommandRegex(translatorFactory, 'maxrarity', '.+'),
+		maxatkRe: createCommandRegex(translatorFactory, 'maxatk', '\\d{1,2}'),
+		maxdefRe: createCommandRegex(translatorFactory, 'maxdef', '\\d{1,2}'),
+		maxstaRe: createCommandRegex(translatorFactory, 'maxsta', '\\d{1,2}'),
 		cpRe: createCommandRegex(translatorFactory, 'cp', '\\d{1,5}'),
-		min_levelRe: createCommandRegex(translatorFactory, 'level', '\\d{1,2}'),
-		min_ivRe: createCommandRegex(translatorFactory, 'iv', '\\d{1,3}'),
+		levelRe: createCommandRegex(translatorFactory, 'level', '\\d{1,2}'),
+		ivRe: createCommandRegex(translatorFactory, 'iv', '\\d{1,3}'),
 		atkRe: createCommandRegex(translatorFactory, 'atk', '\\d{1,2}'),
 		defRe: createCommandRegex(translatorFactory, 'def', '\\d{1,2}'),
 		staRe: createCommandRegex(translatorFactory, 'sta', '\\d{1,2}'),
-		min_weightRe: createCommandRegex(translatorFactory, 'weight', '\\d{1,8}'),
+		weightRe: createCommandRegex(translatorFactory, 'weight', '\\d{1,8}'),
 		rarityRe: createCommandRegex(translatorFactory, 'rarity', '.+'),
 		dRe: createCommandRegex(translatorFactory, 'd', '[\\d.]{1,}'),
 		tRe: createCommandRegex(translatorFactory, 't', '\\d{1,4}'),
@@ -66,9 +66,9 @@ module.exports = (translatorFactory, leagues) => {
 		latlonRe: '^([-+]?(?:[1-8]?\\d(?:\\.\\d+)?|90(?:\\.0+)?)),\\s*([-+]?(?:180(\\.0+)?|(?:(?:1[0-7]\\d)|(?:[1-9]?\\d))(?:\\.\\d+)?))$',
 	}
 	Object.keys(leagues).forEach((league) => {
-		translations[`${league}_leagueRe`] = createCommandRegex(translatorFactory, league, '\\d{1,4}')
-		translations[`${league}_league_highestRe`] = createCommandRegex(translatorFactory, `${league}high`, '\\d{1,4}')
-		translations[`${league}_league_cpRe`] = createCommandRegex(translatorFactory, `${league}cp`, '\\d{1,5}')
+		translations[`${league}LeagueRe`] = createCommandRegex(translatorFactory, league, '\\d{1,4}')
+		translations[`${league}LeagueHighestRe`] = createCommandRegex(translatorFactory, `${league}high`, '\\d{1,4}')
+		translations[`${league}LeagueCPRe`] = createCommandRegex(translatorFactory, `${league}cp`, '\\d{1,5}')
 	})
 	return translations
 }

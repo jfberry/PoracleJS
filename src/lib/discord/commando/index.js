@@ -20,7 +20,7 @@ class DiscordCommando {
 		this.geofence = geofence
 		this.translatorFactory = translatorFactory
 		this.translator = translatorFactory.default
-		this.re = require('../../../util/regex')(this.translatorFactory)
+		this.re = require('../../../util/regex')(this.translatorFactory, config.pvp.leagues)
 		this.id = '0'
 		this.bounceWorker()
 	}

@@ -9,7 +9,7 @@ class Discord {
 		this.emojiStrip = require('emoji-strip')
 		this.query = controller
 		this.translator = translator
-		this.re = require('../../src/util/regex')(translator)
+		this.re = require('../../src/util/regex')(translator, config.pvp.leagues)
 	}
 
 	setDefaults() {
