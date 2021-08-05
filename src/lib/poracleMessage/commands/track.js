@@ -127,9 +127,12 @@ exports.run = async (client, msg, args, options) => {
 				(args.includes(mon.name.toLowerCase()) || args.includes(mon.id.toString()))
         || mon.types.map((t) => t.name.toLowerCase()).find((t) => argTypes.includes(t))
         || args.includes('everything') && !disableEverythingTracking
-        || args.includes('everything') && msg.isFromAdmin) && !mon.form.id)
+        || args.includes('everything') && msg.isFromAdmin)
+        && (formNames.length ? formNames.includes(mon.form.name.toLowerCase()) : !mon.form.id))
 
-			if (gen) {
+			if (gen && args.length === 1) {
+				monsters = Object.values(client.GameData.monsters).filter((mon) => mon.id >= gen.min && mon.id <= gen.max)
+			} else if (gen) {
 				monsters = monsters.filter((mon) => mon.id >= gen.min && mon.id <= gen.max)
 			}
 		} else {
@@ -160,7 +163,7 @@ exports.run = async (client, msg, args, options) => {
 					if (match) {
 						const command = match.substring(0, match.length - 2)
 						input = command.includes('ranking') ? command.split('_')[0] : command.replace('_', '')
-						if (command) [, , trackDefaults[command]] = element.match(client.re[match])
+						if (trackDefaults[command] !== undefined) [, , trackDefaults[command]] = element.match(client.re[match])
 					}
 			}
 			if (!await util.commandAllowed(input)) {
@@ -202,24 +205,18 @@ exports.run = async (client, msg, args, options) => {
 			trackDefaults.distance = client.config.tracking.maxDistance
 		}
 
-		if (trackDefaults.rarity !== -1 && !['1', '2', '3', '4', '5', '6'].includes(trackDefaults.rarity)) {
-			trackDefaults.rarity = client.translatorFactory.reverseTranslateCommand(trackDefaults.rarity, true)
-			const rarityLevel = Object.keys(client.GameData.utilData.rarity).find((x) => client.GameData.utilData.rarity[x].toLowerCase() === trackDefaults.rarity.toLowerCase())
-			if (rarityLevel) {
-				trackDefaults.rarity = rarityLevel
-			} else {
-				trackDefaults.rarity = -1
+		['rarity', 'max_rarity'].forEach((rarity, i) => {
+			const peak = i ? 6 : -1
+			if (trackDefaults[rarity] !== peak && ![1, 2, 3, 4, 5, 6].includes(trackDefaults[rarity])) {
+				trackDefaults[rarity] = client.translatorFactory.reverseTranslateCommand(trackDefaults[rarity], true)
+				const rarityLevel = Object.keys(client.GameData.utilData.rarity).find((x) => client.GameData.utilData.rarity[x].toLowerCase() === trackDefaults[rarity].toLowerCase())
+				if (rarityLevel) {
+					trackDefaults[rarity] = rarityLevel
+				} else {
+					trackDefaults[rarity] = peak
+				}
 			}
-		}
-		if (trackDefaults.max_rarity !== 6 && !['1', '2', '3', '4', '5', '6'].includes(trackDefaults.max_rarity)) {
-			trackDefaults.max_rarity = client.translatorFactory.reverseTranslateCommand(trackDefaults.max_rarity, true)
-			const maxRarityLevel = Object.keys(client.GameData.utilData.rarity).find((x) => client.GameData.utilData.rarity[x].toLowerCase() === trackDefaults.max_rarity.toLowerCase())
-			if (maxRarityLevel) {
-				trackDefaults.max_rarity = maxRarityLevel
-			} else {
-				trackDefaults.max_rarity = 6
-			}
-		}
+		})
 
 		if (trackDefaults.distance > 0 && !userHasLocation && !target.webhook) {
 			await msg.react(translator.translate('🙅'))
