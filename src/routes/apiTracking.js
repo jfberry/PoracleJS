@@ -26,27 +26,27 @@ module.exports = async (fastify, options, next) => {
 		const currentProfileNo = human.current_profile_no
 		const { id } = req.params
 
-		const monsters = await fastify.query.selectAllQuery('monsters', { id, profile_no: currentProfileNo })
-		const raids = await fastify.query.selectAllQuery('raid', { id, profile_no: currentProfileNo })
-		const eggs = await fastify.query.selectAllQuery('egg', { id, profile_no: currentProfileNo })
-		const quests = await fastify.query.selectAllQuery('quest', { id, profile_no: currentProfileNo })
-		const invasions = await fastify.query.selectAllQuery('invasion', { id, profile_no: currentProfileNo })
-		const lures = await fastify.query.selectAllQuery('lures', { id, profile_no: currentProfileNo })
-		const nests = await fastify.query.selectAllQuery('nests', { id, profile_no: currentProfileNo })
-		const gyms = await fastify.query.selectAllQuery('gym', { id, profile_no: currentProfileNo })
+		const pokemon = await fastify.query.selectAllQuery('monsters', { id, profile_no: currentProfileNo })
+		const raid = await fastify.query.selectAllQuery('raid', { id, profile_no: currentProfileNo })
+		const egg = await fastify.query.selectAllQuery('egg', { id, profile_no: currentProfileNo })
+		const quest = await fastify.query.selectAllQuery('quest', { id, profile_no: currentProfileNo })
+		const invasion = await fastify.query.selectAllQuery('invasion', { id, profile_no: currentProfileNo })
+		const lure = await fastify.query.selectAllQuery('lures', { id, profile_no: currentProfileNo })
+		const nest = await fastify.query.selectAllQuery('nests', { id, profile_no: currentProfileNo })
+		const gym = await fastify.query.selectAllQuery('gym', { id, profile_no: currentProfileNo })
 		const profile = await fastify.query.selectOneQuery('profiles', { id, profile_no: currentProfileNo })
 
 		return {
 			status: 'ok',
 			human,
-			gyms,
-			raids,
-			eggs,
-			monsters,
-			invasions,
-			lures,
-			nests,
-			quests,
+			gym,
+			raid,
+			egg,
+			pokemon,
+			invasion,
+			lure,
+			nest,
+			quest,
 			profile,
 		}
 	})
@@ -152,13 +152,13 @@ module.exports = async (fastify, options, next) => {
 		const { id } = req.params
 		const currentProfileNo = human.current_profile_no
 
-		let insertReq = req.body
+		let insertReq = JSON.parse(req.body)
 		if (!Array.isArray(insertReq)) insertReq = [insertReq]
 
-		const defaultTo = ((value, x) => ((value === undefined) ? x : value))
+		const defaultTo = ((value, x) => ((value === undefined) ? +x : value))
 
 		const insert = insertReq.map((row) => {
-			const team = +row.team
+			const team = +row.team || +row.team_id
 			if (team < 0 || team > 3) {
 				throw new Error('Invalid team')
 			}
@@ -167,10 +167,10 @@ module.exports = async (fastify, options, next) => {
 				profile_no: currentProfileNo,
 				ping: '',
 				template: (row.template || fastify.config.general.defaultTemplateName).toString(),
-				distance: defaultTo(+row.distance, 0),
-				clean: defaultTo(+row.clean, 0),
+				distance: defaultTo(row.distance, 0),
+				clean: defaultTo(row.clean, 0),
 				team,
-				slot_changes: defaultTo(+row.slot_changes, 0),
+				slot_changes: +defaultTo(row.slot_changes, 0),
 				gym_id: row.gym_id,
 			}
 		})
