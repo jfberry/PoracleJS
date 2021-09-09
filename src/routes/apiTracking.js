@@ -152,7 +152,8 @@ module.exports = async (fastify, options, next) => {
 		const { id } = req.params
 		const currentProfileNo = human.current_profile_no
 
-		let insertReq = JSON.parse(req.body)
+		let insertReq = req.body
+
 		if (!Array.isArray(insertReq)) insertReq = [insertReq]
 
 		const defaultTo = ((value, x) => ((value === undefined) ? +x : value))
