@@ -230,5 +230,74 @@ module.exports = async (fastify, options, next) => {
 		}
 	})
 
+	fastify.get('/api/geofence/:id', options, async (req) => {
+		fastify.logger.info(`API: ${req.ip} ${req.context.config.method} ${req.context.config.url}`)
+
+		if (fastify.config.server.ipWhitelist.length && !fastify.config.server.ipWhitelist.includes(req.ip)) {
+			return {
+				webserver: 'unhappy',
+				reason: `ip ${req.ip} not in whitelist`,
+			}
+		}
+		if (fastify.config.server.ipBlacklist.length && fastify.config.server.ipBlacklist.includes(req.ip)) {
+			return {
+				webserver: 'unhappy',
+				reason: `ip ${req.ip} in blacklist`,
+			}
+		}
+
+		const secret = req.headers['x-poracle-secret']
+		if (!secret || !fastify.config.server.apiSecret || secret !== fastify.config.server.apiSecret) {
+			return { status: 'authError', reason: 'incorrect or missing api secret' }
+		}
+
+		const human = await fastify.query.selectOneQuery('humans', { id: req.params.id })
+
+		if (!human) {
+			return {
+				status: 'error',
+				message: 'User not found',
+			}
+		}
+
+		let availableAreas = fastify.geofence.map((area) => ({
+			name: area.name,
+			group: area.group || '',
+			description: area.description,
+			lowerCaseName: area.name.toLowerCase(),
+			path: area.path,
+		}))
+
+		availableAreas.sort((a, b) => {
+			const compare = a.group.localeCompare(b.group)
+			if (compare === 0) return a.name.localeCompare(b.name)
+			return compare
+		})
+
+		if (fastify.config.areaSecurity.enabled) {
+			if (human.area_restriction) {
+				const calculatedAreas = []
+
+				if (human.community_membership) {
+					for (const community of JSON.parse(human.community_membership)) {
+						const communityName = Object.keys(fastify.config.areaSecurity.communities).find((x) => x.toLowerCase() === community)
+						const communityDetails = communityName ? fastify.config.areaSecurity.communities[communityName] : null
+						if (communityDetails && communityDetails.allowedAreas) {
+							calculatedAreas.push(...communityDetails.allowedAreas.map((x) => x.toLowerCase()))
+						}
+					}
+					availableAreas = availableAreas.filter((x) => calculatedAreas.includes(x.lowerCaseName))
+				} else {
+					availableAreas = []
+				}
+			}
+		}
+
+		return {
+			status: 'ok',
+			available: availableAreas.map((a) => a.name),
+		}
+	})
+
 	next()
 }
